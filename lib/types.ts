@@ -9,6 +9,23 @@ export interface PersonalityType {
   special?: boolean;
 }
 
+/** sbti_rankings 表行类型 */
+export interface SbtiRankingRow {
+  id: number;
+  submission_id: string;
+  type_code: string;
+  raw_scores: Record<string, number>;
+  levels: Record<string, string>;
+  similarity: number;
+  created_at: string;
+}
+
+/** 排行榜聚合数据（按 type_code 分组统计） */
+export interface RankingEntry {
+  code: string;
+  count: number;
+}
+
 const imageExt: Record<string, string> = {
   "dior-s": "jpg",
   "joker": "jpg",

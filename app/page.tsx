@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { personalityTypes, typeByCode } from "@/lib/types";
+import type { RankingEntry } from "@/lib/types";
 import { modelGroups } from "@/lib/dimensions";
+import { getSupabase } from "@/lib/supabase";
 
 const heroCards = [
   typeByCode["CTRL"],
@@ -34,11 +36,37 @@ const stats = [
   { label: "32 道题", sub: "含隐藏饮酒分支" },
 ];
 
-const topRankings = [
-  { rank: 1, code: "SEXY", cn: "尤物", slug: "sexy", count: 421, pct: "9.4%" },
-  { rank: 2, code: "LOVE-R", cn: "多情者", slug: "love-r", count: 380, pct: "8.5%" },
-  { rank: 3, code: "CTRL", cn: "拿捏者", slug: "ctrl", count: 273, pct: "6.1%" },
-];
+async function fetchTopRankings(): Promise<{ top3: { rank: number; code: string; cn: string; slug: string; count: number; pct: string }[]; total: number }> {
+  try {
+    const supabase = getSupabase();
+    const { data } = await supabase.from("sbti_rankings").select("type_code");
+    if (!data || data.length === 0) {
+      return { top3: [], total: 0 };
+    }
+    const counts: Record<string, number> = {};
+    for (const row of data) {
+      counts[row.type_code] = (counts[row.type_code] ?? 0) + 1;
+    }
+    const sorted = Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+    const total = data.length;
+    const top3 = sorted.map(([code, count], i) => {
+      const t = typeByCode[code];
+      return {
+        rank: i + 1,
+        code,
+        cn: t?.cn ?? code,
+        slug: t?.slug ?? "",
+        count,
+        pct: ((count / total) * 100).toFixed(1) + "%",
+      };
+    });
+    return { top3, total };
+  } catch {
+    return { top3: [], total: 0 };
+  }
+}
 
 const SITE_URL = "https://sbti.xiachat.com";
 
@@ -74,7 +102,11 @@ const softwareJsonLd = {
   inLanguage: "zh-CN",
 };
 
-export default function HomePage() {
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const { top3: topRankings, total: rankingsTotal } = await fetchTopRankings();
+
   return (
     <main className="flex-1">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
@@ -239,9 +271,9 @@ export default function HomePage() {
           {/* Left — total submissions */}
           <div className="flex flex-col justify-between rounded-[32px] border border-black/5 bg-white/85 px-6 py-8 shadow-[0_18px_48px_rgba(15,23,42,0.06)]">
             <div>
-              <p className="text-6xl font-bold tracking-tight text-slate-900">4477</p>
+              <p className="text-6xl font-bold tracking-tight text-slate-900">{rankingsTotal.toLocaleString()}</p>
               <p className="mt-2 text-sm leading-7 text-slate-500">
-                累计收到的人格提交次数。排行榜每天更新一次，展示所有人格类型的提交占比和排名趋势。
+                累计收到的人格提交次数。排行榜每分钟更新，展示所有人格类型的提交占比和排名趋势。
               </p>
             </div>
             <Link
