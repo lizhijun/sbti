@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Noto Sans SC", system-ui, sans-serif;
+  --color-beige: #f7f4ed;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f7f4ed;
+}
