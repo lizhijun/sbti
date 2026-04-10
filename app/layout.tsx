@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Providers } from "@/components/Providers";
 import { Analytics } from '@vercel/analytics/next';
 
 const SITE_URL = "https://sbti.xiachat.com";
@@ -19,6 +20,8 @@ export const metadata: Metadata = {
     "SBTI排行榜", "SBTI人格排行榜", "SBTI 27种人格", "搞笑人格测试",
     "MBTI搞笑版", "人格测试", "性格测试", "在线人格测试", "免费人格测试",
     "抽象人格测试", "中文人格测试", "sbti.xiachat.com",
+    "SBTI personality test", "personality test", "SBTI test online",
+    "性格診断", "성격 테스트",
   ],
   metadataBase: new URL(SITE_URL),
   alternates: {
@@ -27,6 +30,9 @@ export const metadata: Metadata = {
       "zh-CN": "/",
       "zh-Hans": "/",
       "zh-Hant": "/",
+      "en": "/",
+      "ja": "/",
+      "ko": "/",
       "x-default": "/",
     },
   },
@@ -36,7 +42,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: SITE_NAME,
     locale: "zh_CN",
-    alternateLocale: ["zh_TW", "zh_HK"],
+    alternateLocale: ["zh_TW", "zh_HK", "en_US", "ja_JP", "ko_KR"],
     type: "website",
     images: [
       {
@@ -95,7 +101,7 @@ const organizationJsonLd = {
     { "@type": "Country", name: "SG" },
     { "@type": "Country", name: "MY" },
   ],
-  knowsLanguage: ["zh-CN", "zh-TW"],
+  knowsLanguage: ["zh-CN", "zh-TW", "en", "ja", "ko"],
 };
 
 const siteNavigationJsonLd = {
@@ -113,12 +119,19 @@ const siteNavigationJsonLd = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" className="h-full antialiased">
+    <html lang="zh-CN" className="h-full antialiased" suppressHydrationWarning>
       <head>
         <meta name="google-adsense-account" content="ca-pub-8592502425550051" />
-        <meta name="theme-color" content="#f7f4ed" />
-        <meta name="color-scheme" content="light" />
+        <meta name="theme-color" content="#f7f4ed" media="(prefers-color-scheme: light)" />
+        <meta name="theme-color" content="#0f1419" media="(prefers-color-scheme: dark)" />
+        <meta name="color-scheme" content="light dark" />
         <link rel="canonical" href={SITE_URL} />
+        {/* Prevent FOUC for dark mode */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("sbti-theme");var d=t==="dark"||(t!=="light"&&window.matchMedia("(prefers-color-scheme:dark)").matches);if(d)document.documentElement.classList.add("dark")}catch(e){}})()`,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
@@ -128,10 +141,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteNavigationJsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col">
-        <Header />
-        {children}
-        <Footer />
+      <body className="min-h-full flex flex-col bg-beige dark:bg-dark-bg dark:text-slate-200 transition-colors">
+        <Providers>
+          <Header />
+          {children}
+          <Footer />
+        </Providers>
         <Analytics />
       </body>
     </html>

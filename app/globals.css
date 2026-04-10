@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-display: "Noto Sans SC", system-ui, sans-serif;
   --color-beige: #f7f4ed;
+  --color-dark-bg: #0f1419;
+  --color-dark-card: #1a2028;
+  --color-dark-border: rgba(255, 255, 255, 0.08);
 }
 
 html {
@@ -11,4 +16,10 @@ html {
 
 body {
   background-color: #f7f4ed;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background-color: #0f1419;
+  color: #e2e8f0;
 }

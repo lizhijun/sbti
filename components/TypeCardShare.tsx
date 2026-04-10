@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useLocale } from "./Providers";
 
 const SITE_URL = "https://sbti.xiachat.com";
 
@@ -24,29 +25,28 @@ const ShareIcon = () => (
 );
 
 export function TypeCardShare({ code, cn, intro, slug, rank, rarity }: TypeCardShareProps) {
+  const { t } = useLocale();
   const [copied, setCopied] = useState(false);
 
   const resultUrl = `${SITE_URL}/result/${slug}`;
 
   const handleShare = useCallback(async () => {
-    const rankText = rank ? `排行第 ${rank} 名` : "暂无排名";
-    const shareText = `【${cn}】${code} — ${intro}\n${rankText} · 稀有度：${rarity}\n\n来测测你是什么 SBTI 人格 👉 ${resultUrl}\n\n#SBTI人格测试 #人格测试`;
+    const rankText = rank ? t("typeCard.rankText", { rank }) : t("typeCard.noRank");
+    const shareText = t("typeCard.shareText", { cn, code, intro, rankText, rarity, url: resultUrl });
 
-    // Try Web Share API first (mobile friendly)
     if (navigator.share) {
       try {
-        await navigator.share({ title: `SBTI 人格：${cn} (${code})`, text: shareText, url: resultUrl });
+        await navigator.share({ title: t("typeCard.shareTitle", { cn, code }), text: shareText, url: resultUrl });
         return;
       } catch {
-        // User cancelled or API failed, fall through to clipboard
+        // Fall through to clipboard
       }
     }
 
-    // Fallback: copy to clipboard
     await navigator.clipboard.writeText(shareText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }, [code, cn, intro, slug, rank, rarity, resultUrl]);
+  }, [code, cn, intro, slug, rank, rarity, resultUrl, t]);
 
   return (
     <button
@@ -55,11 +55,11 @@ export function TypeCardShare({ code, cn, intro, slug, rank, rarity }: TypeCardS
         e.stopPropagation();
         handleShare();
       }}
-      className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3.5 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700"
-      title="分享此人格"
+      className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-600 bg-white/80 dark:bg-white/10 px-3.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 shadow-sm transition hover:border-emerald-300 dark:hover:border-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-700 dark:hover:text-emerald-300"
+      title={t("share.button")}
     >
       <ShareIcon />
-      {copied ? "已复制" : "分享"}
+      {copied ? t("share.copied") : t("share.button")}
     </button>
   );
 }
