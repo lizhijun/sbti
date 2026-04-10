@@ -60,7 +60,7 @@ export function Header() {
           <Link className="transition hover:text-slate-950 dark:hover:text-white" href="/about">{t("nav.about")}</Link>
           <Link className="transition hover:text-slate-950 dark:hover:text-white" href="/test">{t("nav.startTest")}</Link>
           <a className="transition hover:text-slate-950 dark:hover:text-white" href="https://apps.apple.com/us/app/%E5%B0%8F%E9%BE%99%E8%99%BE-%E7%9C%9F%E6%AD%A3%E8%83%BD%E5%B9%B2%E6%B4%BB%E7%9A%84-ai-%E5%8A%A9%E6%89%8B/id6759594177" target="_blank" rel="noopener noreferrer">{t("nav.xiaoLongXia")}</a>
-          <a className="transition hover:text-slate-950 dark:hover:text-white" href="https://xiachat.com/xiachat" target="_blank" rel="noopener noreferrer">{t("nav.socialMatching")}</a>
+          <a className="transition hover:text-slate-950 dark:hover:text-white" href="https://xiachat.com/clawchat" target="_blank" rel="noopener noreferrer">{t("nav.socialMatching")}</a>
         </nav>
 
         <div className="flex items-center gap-2">
