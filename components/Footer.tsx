@@ -15,6 +15,7 @@ export function Footer() {
             <Link className="transition hover:text-slate-950" href="/types">人格类型</Link>
             <Link className="transition hover:text-slate-950" href="/rankings">人格排行榜</Link>
             <Link className="transition hover:text-slate-950" href="/about">关于测试</Link>
+            <a className="transition hover:text-slate-950" href="https://apps.apple.com/us/app/%E5%B0%8F%E9%BE%99%E8%99%BE-%E7%9C%9F%E6%AD%A3%E8%83%BD%E5%B9%B2%E6%B4%BB%E7%9A%84-ai-%E5%8A%A9%E6%89%8B/id6759594177" target="_blank" rel="noopener noreferrer">🦞 小龙虾AI</a>
           </div>
         </div>
         <div className="space-y-3">
