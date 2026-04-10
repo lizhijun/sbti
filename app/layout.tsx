@@ -115,6 +115,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <head>
+        <meta name="google-adsense-account" content="ca-pub-8592502425550051" />
         <meta name="theme-color" content="#f7f4ed" />
         <meta name="color-scheme" content="light" />
         <link rel="canonical" href={SITE_URL} />
