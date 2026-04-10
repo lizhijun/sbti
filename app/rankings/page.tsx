@@ -19,16 +19,30 @@ export const metadata: Metadata = {
 
 async function fetchRankings(): Promise<{ rankings: RankingEntry[]; total: number }> {
   const supabase = getSupabase();
-  const { data, error } = await supabase.from("sbti_rankings").select("type_code");
-  if (error || !data) return { rankings: [], total: 0 };
+  // Supabase 默认每次最多返回 1000 行，需要分页获取全部数据
+  const allData: { type_code: string }[] = [];
+  const pageSize = 1000;
+  let from = 0;
+
+  while (true) {
+    const { data, error } = await supabase
+      .from("sbti_rankings")
+      .select("type_code")
+      .range(from, from + pageSize - 1);
+    if (error || !data || data.length === 0) break;
+    allData.push(...data);
+    if (data.length < pageSize) break;
+    from += pageSize;
+  }
+
   const counts: Record<string, number> = {};
-  for (const row of data) {
+  for (const row of allData) {
     counts[row.type_code] = (counts[row.type_code] ?? 0) + 1;
   }
   const rankings = Object.entries(counts)
     .map(([code, count]) => ({ code, count }))
     .sort((a, b) => b.count - a.count);
-  return { rankings, total: data.length };
+  return { rankings, total: allData.length };
 }
 
 const SITE_URL = "https://sbti.xiachat.com";

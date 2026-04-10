@@ -6,7 +6,7 @@ export const zh: Record<string, string> = {
   "nav.startTest": "开始测试",
   "nav.subtitle": "人格测试",
   "nav.xiaoLongXia": "🦞 小龙虾AI",
-  "nav.socialMatching": "人格匹配社交",
+  "nav.socialMatching": "AI社交匹配",
 
   // ── Theme ──
   "theme.light": "浅色",
