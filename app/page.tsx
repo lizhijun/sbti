@@ -6,18 +6,35 @@ import { HomeContent } from "./HomeContent";
 async function fetchTopRankings(): Promise<{ top3: { rank: number; code: string; cn: string; slug: string; count: number; pct: string }[]; total: number }> {
   try {
     const supabase = getSupabase();
-    const { data } = await supabase.from("sbti_rankings").select("type_code");
-    if (!data || data.length === 0) {
+
+    // 分页获取全部数据（Supabase 每次最多返回 1000 行）
+    const allData: { type_code: string }[] = [];
+    const pageSize = 1000;
+    let from = 0;
+
+    while (true) {
+      const { data, error } = await supabase
+        .from("sbti_rankings")
+        .select("type_code")
+        .range(from, from + pageSize - 1);
+      if (error || !data || data.length === 0) break;
+      allData.push(...data);
+      if (data.length < pageSize) break;
+      from += pageSize;
+    }
+
+    if (allData.length === 0) {
       return { top3: [], total: 0 };
     }
+
     const counts: Record<string, number> = {};
-    for (const row of data) {
+    for (const row of allData) {
       counts[row.type_code] = (counts[row.type_code] ?? 0) + 1;
     }
     const sorted = Object.entries(counts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3);
-    const total = data.length;
+    const total = allData.length;
     const top3 = sorted.map(([code, count], i) => {
       const t = typeByCode[code];
       return {
