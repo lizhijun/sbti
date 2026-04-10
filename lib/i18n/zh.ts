@@ -27,6 +27,7 @@ export const zh: Record<string, string> = {
   "home.title": "SBTI 人格测试在线测试，测测你到底是哪一种抽象人格。",
   "home.desc": "SBTI 现已支持在线测试。现在就可以开始答题，测出自己的 SBTI 人格类型；测完之后，还能继续查看十五维落点和每一种人格的详细解读。",
   "home.startTest": "开始测试",
+  "home.testingNow": "{count} 人正在测试",
   "home.browseTypes": "浏览 27 种人格",
   "home.aboutLink": "了解测试说明",
   "home.stat1Label": "15 维模型",

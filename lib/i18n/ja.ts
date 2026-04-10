@@ -27,6 +27,7 @@ export const ja: Record<string, string> = {
   "home.title": "SBTI 性格診断 — あなたはどんなタイプ？",
   "home.desc": "SBTIオンライン診断がスタート。質問に答えて、あなたのSBTI性格タイプを発見しましょう。診断後は15次元プロフィールと詳細な性格解説をご覧いただけます。",
   "home.startTest": "テスト開始",
+  "home.testingNow": "{count} 人がテスト中",
   "home.browseTypes": "27タイプを見る",
   "home.aboutLink": "テスト説明を見る",
   "home.stat1Label": "15次元モデル",

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
 import { useLocale } from "@/components/Providers";
 
 interface HeroCard {
@@ -34,6 +35,82 @@ const modelKeys = [
   { titleKey: "model.action", descKey: "model.action.desc", code: "Ac1 · Ac2 · Ac3" },
   { titleKey: "model.social", descKey: "model.social.desc", code: "So1 · So2 · So3" },
 ];
+
+/* ── Rolling number digit ── */
+function RollingDigit({ digit }: { digit: string }) {
+  const prevRef = useRef(digit);
+  const [animate, setAnimate] = useState(false);
+
+  useEffect(() => {
+    if (prevRef.current !== digit) {
+      setAnimate(true);
+      prevRef.current = digit;
+      const timer = setTimeout(() => setAnimate(false), 400);
+      return () => clearTimeout(timer);
+    }
+  }, [digit]);
+
+  return (
+    <span className="inline-block overflow-hidden relative" style={{ width: "0.6em", height: "1.2em" }}>
+      <span
+        className={`inline-block transition-transform duration-400 ease-out ${animate ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"}`}
+        style={{ position: "absolute", left: 0 }}
+      >
+        {animate ? prevRef.current : digit}
+      </span>
+      <span
+        className={`inline-block transition-transform duration-400 ease-out ${animate ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"}`}
+        style={{ position: "absolute", left: 0 }}
+      >
+        {digit}
+      </span>
+    </span>
+  );
+}
+
+/* ── Animated online count ── */
+function OnlineCount({ text }: { text: string }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    // Seed from time of day to vary across sessions
+    const hour = new Date().getHours();
+    const base = hour >= 8 && hour <= 23 ? 30 + Math.floor(hour * 1.5) : 15 + Math.floor(Math.random() * 10);
+    setCount(base + Math.floor(Math.random() * 15));
+
+    const interval = setInterval(() => {
+      setCount((prev) => {
+        const delta = Math.random() > 0.5 ? 1 : -1;
+        const next = prev + delta;
+        return Math.max(10, Math.min(next, 99));
+      });
+    }, 3000 + Math.random() * 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (count === 0) return null;
+
+  const digits = String(count).split("");
+  const rendered = text.replace("{count}", "___PLACEHOLDER___");
+  const parts = rendered.split("___PLACEHOLDER___");
+
+  return (
+    <span className="inline-flex items-center gap-1 text-sm text-emerald-700 dark:text-emerald-400 font-medium">
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600 dark:bg-emerald-400" />
+      </span>
+      {parts[0]}
+      <span className="inline-flex tabular-nums font-semibold">
+        {digits.map((d, i) => (
+          <RollingDigit key={i} digit={d} />
+        ))}
+      </span>
+      {parts[1]}
+    </span>
+  );
+}
 
 export function HomeContent({ heroCards, topRankings, rankingsTotal }: Props) {
   const { t } = useLocale();
@@ -73,6 +150,7 @@ export function HomeContent({ heroCards, topRankings, rankingsTotal }: Props) {
               <Link href="/test" className="inline-flex items-center rounded-full bg-emerald-600 dark:bg-emerald-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 dark:hover:bg-emerald-400">
                 {t("home.startTest")}
               </Link>
+              <OnlineCount text={t("home.testingNow")} />
               <Link href="/types" className="inline-flex items-center rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-dark-card px-6 py-3 text-sm font-semibold text-slate-800 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:hover:bg-white/10">
                 {t("home.browseTypes")}
               </Link>

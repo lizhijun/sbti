@@ -27,6 +27,7 @@ export const en: Record<string, string> = {
   "home.title": "SBTI Personality Test — Find out which absurd personality type you are.",
   "home.desc": "SBTI is now available online. Start answering questions to discover your SBTI personality type, then explore your 15-dimension profile and detailed personality analysis.",
   "home.startTest": "Start Test",
+  "home.testingNow": "{count} people testing now",
   "home.browseTypes": "Browse 27 Types",
   "home.aboutLink": "Learn more about the test",
   "home.stat1Label": "15 Dimensions",

@@ -27,6 +27,7 @@ export const ko: Record<string, string> = {
   "home.title": "SBTI 성격 테스트 — 당신은 어떤 유형인가요?",
   "home.desc": "SBTI 온라인 테스트가 시작되었습니다. 질문에 답하여 당신의 SBTI 성격 유형을 발견하세요. 테스트 후 15차원 프로필과 상세한 성격 분석을 확인할 수 있습니다.",
   "home.startTest": "테스트 시작",
+  "home.testingNow": "{count}명 테스트 중",
   "home.browseTypes": "27가지 유형 보기",
   "home.aboutLink": "테스트 설명 보기",
   "home.stat1Label": "15차원 모델",
