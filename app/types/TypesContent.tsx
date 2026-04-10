@@ -56,17 +56,23 @@ export function TypesContent({ types }: { types: TypeItem[] }) {
                 {rarityLabel}
               </span>
 
+              {(() => {
+                const tpCn = t(`type.${tp.slug}.cn`) !== `type.${tp.slug}.cn` ? t(`type.${tp.slug}.cn`) : tp.cn;
+                const tpIntro = t(`type.${tp.slug}.intro`) !== `type.${tp.slug}.intro` ? t(`type.${tp.slug}.intro`) : tp.intro;
+                return (<>
               <div className="relative h-[200px] w-[200px] overflow-hidden rounded-2xl">
-                <Image src={tp.image} alt={tp.cn} width={200} height={200} className="object-cover" />
+                <Image src={tp.image} alt={tpCn} width={200} height={200} className="object-cover" />
               </div>
 
               <span className="mt-5 inline-block rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-4 py-1 text-xs font-semibold tracking-widest text-emerald-800 dark:text-emerald-300 uppercase">
                 {tp.code}
               </span>
 
-              <h2 className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{tp.cn}</h2>
+              <h2 className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{tpCn}</h2>
 
-              <p className="mt-2 text-center text-sm leading-6 text-slate-600 dark:text-slate-400">{tp.intro}</p>
+              <p className="mt-2 text-center text-sm leading-6 text-slate-600 dark:text-slate-400">{tpIntro}</p>
+                </>);
+              })()}
 
               <div className="mt-3 flex items-center gap-2 text-xs text-slate-400">
                 {tp.count > 0 ? (

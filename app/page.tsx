@@ -89,6 +89,7 @@ export default async function HomePage() {
     cn: t!.cn,
     intro: t!.intro,
     image: t!.image,
+    slug: t!.slug,
   }));
 
   return (

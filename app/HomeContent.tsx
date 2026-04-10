@@ -9,6 +9,7 @@ interface HeroCard {
   cn: string;
   intro: string;
   image: string;
+  slug: string;
 }
 
 interface RankingItem {
@@ -91,18 +92,22 @@ export function HomeContent({ heroCards, topRankings, rankingsTotal }: Props) {
           </div>
 
           <div className="flex flex-col gap-4">
-            {heroCards.map((tc) => (
+            {heroCards.map((tc) => {
+              const tcCn = t(`type.${tc.slug}.cn`) !== `type.${tc.slug}.cn` ? t(`type.${tc.slug}.cn`) : tc.cn;
+              const tcIntro = t(`type.${tc.slug}.intro`) !== `type.${tc.slug}.intro` ? t(`type.${tc.slug}.intro`) : tc.intro;
+              return (
               <div key={tc.code} className="flex items-center gap-5 rounded-[28px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-5 py-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
                 <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-2xl">
-                  <Image src={tc.image} alt={tc.cn} fill className="object-cover" />
+                  <Image src={tc.image} alt={tcCn} fill className="object-cover" />
                 </div>
                 <div className="flex flex-col gap-1">
                   <p className="text-xs font-semibold tracking-widest text-slate-400 uppercase">{tc.code}</p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{tc.cn}</p>
-                  <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">{tc.intro}</p>
+                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{tcCn}</p>
+                  <p className="text-sm leading-6 text-slate-500 dark:text-slate-400">{tcIntro}</p>
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

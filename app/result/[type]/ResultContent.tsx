@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "@/components/Providers";
-import { dimensionMeta } from "@/lib/dimensions";
 import type { Level, DimensionCode } from "@/lib/dimensions";
 import { SubmitRanking } from "@/components/SubmitRanking";
 import { SocialShare } from "@/components/SocialShare";
@@ -44,12 +43,16 @@ function levelColor(level: Level) {
 export function ResultContent({ code, cn, intro, desc, slug, image, hasPattern, dimensions, related }: Props) {
   const { t } = useLocale();
 
+  const localCn = t(`type.${slug}.cn`) !== `type.${slug}.cn` ? t(`type.${slug}.cn`) : cn;
+  const localIntro = t(`type.${slug}.intro`) !== `type.${slug}.intro` ? t(`type.${slug}.intro`) : intro;
+  const localDesc = t(`type.${slug}.desc`) !== `type.${slug}.desc` ? t(`type.${slug}.desc`) : desc;
+
   return (
     <section className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8">
       {/* ── Hero ── */}
       <div className="flex flex-col items-center text-center">
         <div className="relative h-[300px] w-[300px] overflow-hidden rounded-3xl">
-          <Image src={image} alt={cn} width={300} height={300} className="object-cover" priority />
+          <Image src={image} alt={localCn} width={300} height={300} className="object-cover" priority />
         </div>
 
         <span className="mt-6 inline-block rounded-full bg-emerald-100 dark:bg-emerald-900/40 px-5 py-1.5 text-xs font-semibold tracking-[0.18em] text-emerald-800 dark:text-emerald-300 uppercase">
@@ -57,18 +60,18 @@ export function ResultContent({ code, cn, intro, desc, slug, image, hasPattern, 
         </span>
 
         <h1 className="font-display mt-4 text-4xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">
-          {cn}
+          {localCn}
         </h1>
 
         <p className="mt-3 max-w-xl text-base leading-8 text-slate-600 dark:text-slate-400">
-          {intro}
+          {localIntro}
         </p>
       </div>
 
       {/* ── Description card ── */}
       <div className="mt-10 rounded-[30px] border border-black/5 dark:border-white/10 bg-white/88 dark:bg-dark-card px-6 py-8 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t("result.portrait")}</h2>
-        <p className="mt-4 text-sm leading-8 text-slate-700 dark:text-slate-300">{desc}</p>
+        <p className="mt-4 text-sm leading-8 text-slate-700 dark:text-slate-300">{localDesc}</p>
       </div>
 
       {/* ── Mode kicker ── */}
@@ -78,7 +81,7 @@ export function ResultContent({ code, cn, intro, desc, slug, image, hasPattern, 
         </p>
         <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
           {code}{" "}
-          <span className="text-sm font-normal text-slate-500 dark:text-slate-400">— {cn}</span>
+          <span className="text-sm font-normal text-slate-500 dark:text-slate-400">— {localCn}</span>
         </p>
       </div>
 
@@ -94,12 +97,16 @@ export function ResultContent({ code, cn, intro, desc, slug, image, hasPattern, 
         {hasPattern ? (
           <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {dimensions.map(({ dimCode, level }) => {
-              const meta = dimensionMeta[dimCode];
               const explanation = t(`dim.${dimCode}.${level}`);
+              const modelKey = dimCode.startsWith("S") ? "model.self"
+                : dimCode.startsWith("E") ? "model.emotion"
+                : dimCode.startsWith("A") && !dimCode.startsWith("Ac") ? "model.attitude"
+                : dimCode.startsWith("Ac") ? "model.action"
+                : "model.social";
               return (
                 <div key={dimCode} className="rounded-[28px] border border-black/5 dark:border-white/10 bg-white/88 dark:bg-dark-card px-5 py-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
                   <p className="text-xs font-semibold tracking-widest text-emerald-700 dark:text-emerald-400 uppercase">
-                    {meta.model}
+                    {t(modelKey)}
                   </p>
                   <p className="mt-2 text-base font-semibold text-slate-900 dark:text-white">
                     {t(`dim.${dimCode}`)}
@@ -120,7 +127,7 @@ export function ResultContent({ code, cn, intro, desc, slug, image, hasPattern, 
               {t("result.specialType")}
             </p>
             <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-400">
-              {cn}（{code}）{t("result.specialDesc")}
+              {localCn}（{code}）{t("result.specialDesc")}
             </p>
           </div>
         )}
@@ -149,7 +156,7 @@ export function ResultContent({ code, cn, intro, desc, slug, image, hasPattern, 
       </div>
 
       {/* ── Social sharing ── */}
-      <SocialShare code={code} cn={cn} intro={intro} slug={slug} image={image} />
+      <SocialShare code={code} cn={localCn} intro={localIntro} slug={slug} image={image} />
 
       {/* ── Related types ── */}
       <div className="mt-14">
@@ -157,20 +164,24 @@ export function ResultContent({ code, cn, intro, desc, slug, image, hasPattern, 
           {t("result.otherTypes")}
         </h2>
         <div className="mt-6 grid gap-5 sm:grid-cols-3">
-          {related.map((r) => (
+          {related.map((r) => {
+            const rCn = t(`type.${r.slug}.cn`) !== `type.${r.slug}.cn` ? t(`type.${r.slug}.cn`) : r.cn;
+            const rIntro = t(`type.${r.slug}.intro`) !== `type.${r.slug}.intro` ? t(`type.${r.slug}.intro`) : r.intro;
+            return (
             <Link
               key={r.slug}
               href={`/result/${r.slug}`}
               className="flex flex-col items-center rounded-[28px] border border-black/5 dark:border-white/10 bg-white/88 dark:bg-dark-card px-5 py-6 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none transition hover:shadow-[0_18px_48px_rgba(15,23,42,0.10)]"
             >
               <div className="relative h-20 w-20 overflow-hidden rounded-2xl">
-                <Image src={r.image} alt={r.cn} fill className="object-cover" />
+                <Image src={r.image} alt={rCn} fill className="object-cover" />
               </div>
               <span className="mt-3 text-xs font-semibold tracking-widest text-slate-400 uppercase">{r.code}</span>
-              <p className="mt-1 text-base font-semibold text-slate-900 dark:text-white">{r.cn}</p>
-              <p className="mt-1 text-center text-sm text-slate-500 dark:text-slate-400">{r.intro}</p>
+              <p className="mt-1 text-base font-semibold text-slate-900 dark:text-white">{rCn}</p>
+              <p className="mt-1 text-center text-sm text-slate-500 dark:text-slate-400">{rIntro}</p>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
