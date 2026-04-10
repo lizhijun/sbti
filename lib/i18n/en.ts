@@ -7,6 +7,10 @@ export const en: Record<string, string> = {
   "nav.subtitle": "Personality Test",
   "nav.xiaoLongXia": "🦞 XiaChat AI",
   "nav.socialMatching": "Social Matching",
+  "nav.moreTests": "More Tests",
+  "nav.soulQuiz": "Soul Quiz",
+  "nav.soulmate": "Soulmate Portrait",
+  "nav.mbti": "MBTI Test",
 
   // ── Theme ──
   "theme.light": "Light",

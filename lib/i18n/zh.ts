@@ -7,6 +7,10 @@ export const zh: Record<string, string> = {
   "nav.subtitle": "人格测试",
   "nav.xiaoLongXia": "🦞 小龙虾AI",
   "nav.socialMatching": "AI社交匹配",
+  "nav.moreTests": "更多测试",
+  "nav.soulQuiz": "灵魂测试",
+  "nav.soulmate": "灵魂伴侣画像",
+  "nav.mbti": "MBTI人格测试",
 
   // ── Theme ──
   "theme.light": "浅色",

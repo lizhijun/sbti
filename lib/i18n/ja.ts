@@ -7,6 +7,10 @@ export const ja: Record<string, string> = {
   "nav.subtitle": "性格診断",
   "nav.xiaoLongXia": "🦞 XiaChat AI",
   "nav.socialMatching": "性格マッチング",
+  "nav.moreTests": "その他の診断",
+  "nav.soulQuiz": "魂の診断",
+  "nav.soulmate": "ソウルメイト",
+  "nav.mbti": "MBTI性格診断",
 
   // ── Theme ──
   "theme.light": "ライト",

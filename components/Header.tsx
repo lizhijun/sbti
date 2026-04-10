@@ -24,22 +24,39 @@ const GlobeIcon = () => (
   </svg>
 );
 
+const ChevronDownIcon = () => (
+  <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+    <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+  </svg>
+);
+
+const MORE_TESTS = [
+  { key: "nav.soulQuiz", href: "https://xiachat.com/soul-quiz" },
+  { key: "nav.soulmate", href: "https://xiachat.com/soulmate" },
+  { key: "nav.mbti", href: "https://mbti.xiachat.com" },
+] as const;
+
 export function Header() {
   const { resolved, setTheme } = useTheme();
   const { locale, setLocale, t } = useLocale();
   const [langOpen, setLangOpen] = useState(false);
+  const [testsOpen, setTestsOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const testsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!langOpen) return;
+    if (!langOpen && !testsOpen) return;
     const handler = (e: MouseEvent) => {
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+      if (langOpen && langRef.current && !langRef.current.contains(e.target as Node)) {
         setLangOpen(false);
+      }
+      if (testsOpen && testsRef.current && !testsRef.current.contains(e.target as Node)) {
+        setTestsOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [langOpen]);
+  }, [langOpen, testsOpen]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-black/5 dark:border-white/10 bg-[rgba(247,244,237,0.82)] dark:bg-[rgba(15,20,25,0.82)] backdrop-blur-xl">
@@ -59,6 +76,30 @@ export function Header() {
           <Link className="transition hover:text-slate-950 dark:hover:text-white" href="/rankings">{t("nav.rankings")}</Link>
           <Link className="transition hover:text-slate-950 dark:hover:text-white" href="/about">{t("nav.about")}</Link>
           <Link className="transition hover:text-slate-950 dark:hover:text-white" href="/test">{t("nav.startTest")}</Link>
+          <div className="relative" ref={testsRef}>
+            <button
+              onClick={() => setTestsOpen(!testsOpen)}
+              className="flex items-center gap-1 transition hover:text-slate-950 dark:hover:text-white"
+            >
+              {t("nav.moreTests")}
+              <ChevronDownIcon />
+            </button>
+            {testsOpen && (
+              <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-dark-card shadow-xl py-2 z-50">
+                {MORE_TESTS.map((item) => (
+                  <a
+                    key={item.key}
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center px-4 py-2 text-sm text-slate-700 dark:text-slate-300 transition hover:bg-slate-50 dark:hover:bg-white/10"
+                  >
+                    {t(item.key)}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
           <a className="transition hover:text-slate-950 dark:hover:text-white" href="https://apps.apple.com/us/app/%E5%B0%8F%E9%BE%99%E8%99%BE-%E7%9C%9F%E6%AD%A3%E8%83%BD%E5%B9%B2%E6%B4%BB%E7%9A%84-ai-%E5%8A%A9%E6%89%8B/id6759594177" target="_blank" rel="noopener noreferrer">{t("nav.xiaoLongXia")}</a>
           <a className="transition hover:text-slate-950 dark:hover:text-white" href="https://xiachat.com/clawchat" target="_blank" rel="noopener noreferrer">{t("nav.socialMatching")}</a>
         </nav>

@@ -7,6 +7,10 @@ export const ko: Record<string, string> = {
   "nav.subtitle": "성격 테스트",
   "nav.xiaoLongXia": "🦞 XiaChat AI",
   "nav.socialMatching": "성격 매칭",
+  "nav.moreTests": "더 많은 테스트",
+  "nav.soulQuiz": "영혼 테스트",
+  "nav.soulmate": "소울메이트 초상화",
+  "nav.mbti": "MBTI 성격 테스트",
 
   // ── Theme ──
   "theme.light": "라이트",
