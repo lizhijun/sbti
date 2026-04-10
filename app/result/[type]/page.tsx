@@ -240,6 +240,14 @@ export default async function ResultPage({
           >
             查看所有人格
           </Link>
+          <a
+            href="https://xiachat.com/xiachat"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center rounded-full border border-emerald-300 bg-emerald-50 px-6 py-3 text-sm font-semibold text-emerald-800 shadow-sm transition hover:bg-emerald-100"
+          >
+            人格匹配社交
+          </a>
         </div>
 
         {/* ── Social sharing ── */}
