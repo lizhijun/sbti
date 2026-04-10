@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useEffect, useRef } from "react";
 import QRCode from "qrcode";
+import { useLocale } from "./Providers";
 
 const SITE_URL = "https://sbti.xiachat.com";
 
@@ -15,14 +16,7 @@ interface ShareProps {
 
 /* ── Canvas helpers ── */
 
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  r: number,
-) {
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.lineTo(x + w - r, y);
@@ -46,14 +40,7 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function wrapText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-): number {
+function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number): number {
   const chars = text.split("");
   let line = "";
   let lineY = y;
@@ -75,7 +62,7 @@ function wrapText(
   return lineY;
 }
 
-/* ── SVG icons as inline data ── */
+/* ── SVG icons ── */
 
 const WechatIcon = () => (
   <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor">
@@ -113,9 +100,8 @@ const CloseIcon = () => (
 /* ── Component ── */
 
 export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
-  const [showModal, setShowModal] = useState<
-    "wechat" | "xiaohongshu" | null
-  >(null);
+  const { t } = useLocale();
+  const [showModal, setShowModal] = useState<"wechat" | "xiaohongshu" | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -124,57 +110,41 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
 
   const resultUrl = `${SITE_URL}/result/${slug}`;
 
-  /* Generate QR code on mount */
   useEffect(() => {
-    QRCode.toDataURL(resultUrl, {
-      width: 200,
-      margin: 1,
-      color: { dark: "#0f172a", light: "#ffffff" },
-    }).then(setQrDataUrl);
+    QRCode.toDataURL(resultUrl, { width: 200, margin: 1, color: { dark: "#0f172a", light: "#ffffff" } }).then(setQrDataUrl);
   }, [resultUrl]);
 
-  /* Close modal on outside click */
   useEffect(() => {
     if (!showModal) return;
     const handler = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        setShowModal(null);
-      }
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) setShowModal(null);
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [showModal]);
 
-  /* Close modal on Escape */
   useEffect(() => {
     if (!showModal) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowModal(null);
-    };
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") setShowModal(null); };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [showModal]);
 
-  /* ── Generate share card image via Canvas 2D ── */
   const generateShareImage = useCallback(async (): Promise<string | null> => {
     if (!qrDataUrl) return null;
     setGenerating(true);
     try {
-      const W = 750;
-      const H = 1050;
+      const W = 750, H = 1050;
       const canvas = document.createElement("canvas");
-      canvas.width = W;
-      canvas.height = H;
+      canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext("2d");
       if (!ctx) return null;
 
       await document.fonts.ready;
 
-      /* Background */
       ctx.fillStyle = "#f7f4ed";
       ctx.fillRect(0, 0, W, H);
 
-      /* Card */
       const pad = 40;
       ctx.fillStyle = "#ffffff";
       roundRect(ctx, pad, pad, W - pad * 2, H - pad * 2, 28);
@@ -184,7 +154,6 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
       roundRect(ctx, pad, pad, W - pad * 2, H - pad * 2, 28);
       ctx.stroke();
 
-      /* Personality image */
       const img = await loadImage(image);
       const imgSize = 240;
       const imgX = (W - imgSize) / 2;
@@ -195,7 +164,6 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
       ctx.drawImage(img, imgX, imgY, imgSize, imgSize);
       ctx.restore();
 
-      /* Code badge */
       ctx.font = '600 18px "Noto Sans SC", system-ui, sans-serif';
       const badgeW = ctx.measureText(code).width + 36;
       const badgeH = 34;
@@ -209,7 +177,6 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
       ctx.textBaseline = "middle";
       ctx.fillText(code, W / 2, badgeY + badgeH / 2);
 
-      /* Name */
       ctx.fillStyle = "#0f172a";
       ctx.font = 'bold 40px "Noto Sans SC", system-ui, sans-serif';
       ctx.textAlign = "center";
@@ -217,21 +184,12 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
       const nameY = badgeY + badgeH + 24;
       ctx.fillText(cn, W / 2, nameY);
 
-      /* Intro */
       ctx.fillStyle = "#475569";
       ctx.font = '400 20px "Noto Sans SC", system-ui, sans-serif';
       ctx.textAlign = "center";
       const introY = nameY + 52;
-      const introBottom = wrapText(
-        ctx,
-        intro,
-        W / 2,
-        introY,
-        W - pad * 2 - 80,
-        30,
-      );
+      const introBottom = wrapText(ctx, intro, W / 2, introY, W - pad * 2 - 80, 30);
 
-      /* Divider */
       const divY = Math.max(introBottom + 16, introY + 50);
       ctx.strokeStyle = "rgba(0,0,0,0.08)";
       ctx.lineWidth = 1;
@@ -240,7 +198,6 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
       ctx.lineTo(W - pad - 50, divY);
       ctx.stroke();
 
-      /* Bottom: QR code + call to action */
       const qrImg = await loadImage(qrDataUrl);
       const qrSize = 110;
       const bottomY = divY + 24;
@@ -251,7 +208,7 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
       ctx.font = 'bold 20px "Noto Sans SC", system-ui, sans-serif';
       ctx.textAlign = "left";
       ctx.textBaseline = "top";
-      ctx.fillText("扫码测测你的 SBTI 人格", qrX + qrSize + 24, bottomY + 12);
+      ctx.fillText(t("share.canvasQr"), qrX + qrSize + 24, bottomY + 12);
 
       ctx.fillStyle = "#64748b";
       ctx.font = '400 16px "Noto Sans SC", system-ui, sans-serif';
@@ -259,7 +216,7 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
 
       ctx.fillStyle = "#94a3b8";
       ctx.font = '400 14px "Noto Sans SC", system-ui, sans-serif';
-      ctx.fillText("SBTI 人格测试 · 27 种抽象人格", qrX + qrSize + 24, bottomY + 72);
+      ctx.fillText(t("share.canvasTag"), qrX + qrSize + 24, bottomY + 72);
 
       const dataUrl = canvas.toDataURL("image/png");
       setCardPreview(dataUrl);
@@ -267,9 +224,7 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
     } finally {
       setGenerating(false);
     }
-  }, [image, code, cn, intro, qrDataUrl]);
-
-  /* ── Handlers ── */
+  }, [image, code, cn, intro, qrDataUrl, t]);
 
   const handleDownload = useCallback(async () => {
     const dataUrl = cardPreview || (await generateShareImage());
@@ -291,17 +246,17 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
   }, [generateShareImage, cardPreview]);
 
   const handleTwitter = useCallback(() => {
-    const text = `我在 SBTI 人格测试中测出了「${cn}」(${code})！${intro}`;
+    const text = t("share.tweetText", { cn, code, intro });
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(resultUrl)}`;
     window.open(url, "_blank", "width=600,height=400");
-  }, [cn, code, intro, resultUrl]);
+  }, [cn, code, intro, resultUrl, t]);
 
   const copyShareText = useCallback(async () => {
-    const text = `我在 SBTI 人格测试中测出了「${cn}」(${code})！\n${intro}\n\n来测测你是什么人格 👉 ${resultUrl}\n\n#SBTI人格测试 #人格测试 #性格测试`;
+    const text = t("share.shareText", { cn, code, intro, url: resultUrl });
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  }, [cn, code, intro, resultUrl]);
+  }, [cn, code, intro, resultUrl, t]);
 
   const saveImage = useCallback(async () => {
     const dataUrl = cardPreview || (await generateShareImage());
@@ -314,69 +269,30 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
 
   return (
     <>
-      {/* ── Share section ── */}
-      <div className="mt-10 rounded-[30px] border border-black/5 bg-white/88 px-6 py-8 shadow-[0_18px_48px_rgba(15,23,42,0.06)]">
-        <h2 className="text-center text-lg font-semibold text-slate-900">
-          分享你的测试结果
-        </h2>
-        <p className="mt-2 text-center text-sm text-slate-500">
-          让朋友也来测测他们是什么人格
-        </p>
+      <div className="mt-10 rounded-[30px] border border-black/5 dark:border-white/10 bg-white/88 dark:bg-dark-card px-6 py-8 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
+        <h2 className="text-center text-lg font-semibold text-slate-900 dark:text-white">{t("share.title")}</h2>
+        <p className="mt-2 text-center text-sm text-slate-500 dark:text-slate-400">{t("share.subtitle")}</p>
 
         <div className="mt-6 flex flex-wrap justify-center gap-3">
-          {/* WeChat */}
-          <button
-            onClick={handleWechat}
-            disabled={generating}
-            className="inline-flex items-center gap-2 rounded-full bg-[#07C160] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#06ae56] disabled:opacity-50"
-          >
-            <WechatIcon />
-            微信
+          <button onClick={handleWechat} disabled={generating} className="inline-flex items-center gap-2 rounded-full bg-[#07C160] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#06ae56] disabled:opacity-50">
+            <WechatIcon /> {t("share.wechat")}
           </button>
-
-          {/* Xiaohongshu */}
-          <button
-            onClick={handleXiaohongshu}
-            disabled={generating}
-            className="inline-flex items-center gap-2 rounded-full bg-[#FF2442] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#e61f3b] disabled:opacity-50"
-          >
-            <XiaohongshuIcon />
-            小红书
+          <button onClick={handleXiaohongshu} disabled={generating} className="inline-flex items-center gap-2 rounded-full bg-[#FF2442] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#e61f3b] disabled:opacity-50">
+            <XiaohongshuIcon /> {t("share.xiaohongshu")}
           </button>
-
-          {/* Twitter / X */}
-          <button
-            onClick={handleTwitter}
-            className="inline-flex items-center gap-2 rounded-full bg-[#0f1419] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#272c30]"
-          >
-            <TwitterIcon />
-            Twitter
+          <button onClick={handleTwitter} className="inline-flex items-center gap-2 rounded-full bg-[#0f1419] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#272c30]">
+            <TwitterIcon /> Twitter
           </button>
-
-          {/* Download */}
-          <button
-            onClick={handleDownload}
-            disabled={generating}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:opacity-50"
-          >
-            <DownloadIcon />
-            {generating ? "生成中..." : "下载图片"}
+          <button onClick={handleDownload} disabled={generating} className="inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-dark-card px-5 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200 shadow-sm transition hover:bg-slate-50 dark:hover:bg-white/10 disabled:opacity-50">
+            <DownloadIcon /> {generating ? t("share.generating") : t("share.download")}
           </button>
         </div>
       </div>
 
-      {/* ── Modal overlay ── */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
-          <div
-            ref={modalRef}
-            className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white p-6 shadow-2xl"
-          >
-            {/* Close button */}
-            <button
-              onClick={() => setShowModal(null)}
-              className="absolute top-4 right-4 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-            >
+          <div ref={modalRef} className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl bg-white dark:bg-dark-card p-6 shadow-2xl">
+            <button onClick={() => setShowModal(null)} className="absolute top-4 right-4 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-600 dark:hover:text-white">
               <CloseIcon />
             </button>
 
@@ -385,55 +301,32 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#07C160]/10 text-[#07C160]">
                   <WechatIcon />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">
-                  微信分享
-                </h3>
-                <p className="mt-2 text-sm text-slate-500">
-                  截图保存或长按识别二维码，发送给微信好友
-                </p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{t("share.wechatTitle")}</h3>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t("share.wechatDesc")}</p>
 
-                {/* QR Code */}
                 {qrDataUrl && (
-                  <div className="mt-5 rounded-2xl border border-slate-100 bg-white p-4">
-                    <img
-                      src={qrDataUrl}
-                      alt="分享二维码"
-                      className="h-48 w-48"
-                    />
+                  <div className="mt-5 rounded-2xl border border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800 p-4">
+                    <img src={qrDataUrl} alt="QR" className="h-48 w-48" />
                   </div>
                 )}
 
                 <p className="mt-3 text-xs text-slate-400">
-                  扫码即可查看「{cn}」({code}) 人格详情
+                  {t("share.scanQr")} — {cn} ({code})
                 </p>
 
-                {/* Share card preview */}
                 {cardPreview && (
                   <div className="mt-5 w-full">
-                    <p className="mb-2 text-sm font-medium text-slate-600">
-                      或保存分享卡片
-                    </p>
-                    <img
-                      src={cardPreview}
-                      alt="分享卡片"
-                      className="w-full rounded-2xl border border-slate-100"
-                    />
+                    <p className="mb-2 text-sm font-medium text-slate-600 dark:text-slate-300">{t("share.orSaveCard")}</p>
+                    <img src={cardPreview} alt="Share card" className="w-full rounded-2xl border border-slate-100 dark:border-slate-700" />
                   </div>
                 )}
 
                 <div className="mt-5 flex gap-3">
-                  <button
-                    onClick={saveImage}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#07C160] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#06ae56]"
-                  >
-                    <DownloadIcon />
-                    保存图片
+                  <button onClick={saveImage} className="inline-flex items-center gap-2 rounded-full bg-[#07C160] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#06ae56]">
+                    <DownloadIcon /> {t("share.saveImage")}
                   </button>
-                  <button
-                    onClick={copyShareText}
-                    className="inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                  >
-                    {copied ? "已复制" : "复制链接"}
+                  <button onClick={copyShareText} className="inline-flex items-center rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-dark-card px-5 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-white/10">
+                    {copied ? t("share.copied") : t("share.copyLink")}
                   </button>
                 </div>
               </div>
@@ -444,54 +337,31 @@ export function SocialShare({ code, cn, intro, slug, image }: ShareProps) {
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#FF2442]/10 text-[#FF2442]">
                   <XiaohongshuIcon />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900">
-                  分享到小红书
-                </h3>
-                <p className="mt-2 text-sm text-slate-500">
-                  保存图片并复制文案，粘贴到小红书发布
-                </p>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{t("share.xhsTitle")}</h3>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t("share.xhsDesc")}</p>
 
-                {/* Card preview */}
                 {cardPreview && (
                   <div className="mt-5 w-full">
-                    <img
-                      src={cardPreview}
-                      alt="分享卡片"
-                      className="w-full rounded-2xl border border-slate-100"
-                    />
+                    <img src={cardPreview} alt="Share card" className="w-full rounded-2xl border border-slate-100 dark:border-slate-700" />
                   </div>
                 )}
 
-                {/* Share text preview */}
-                <div className="mt-5 w-full rounded-2xl bg-slate-50 p-4 text-left">
-                  <p className="text-sm leading-6 text-slate-700">
-                    我在 SBTI 人格测试中测出了「{cn}」({code})！
-                    <br />
-                    {intro}
-                    <br />
-                    <br />
-                    来测测你是什么人格 👉 {resultUrl}
-                    <br />
-                    <br />
-                    <span className="text-[#FF2442]">
-                      #SBTI人格测试 #人格测试 #性格测试
-                    </span>
+                <div className="mt-5 w-full rounded-2xl bg-slate-50 dark:bg-slate-800 p-4 text-left">
+                  <p className="text-sm leading-6 text-slate-700 dark:text-slate-300">
+                    {t("share.tweetText", { cn, code, intro })}
+                    <br /><br />
+                    {resultUrl}
+                    <br /><br />
+                    <span className="text-[#FF2442]">#SBTI #PersonalityTest</span>
                   </p>
                 </div>
 
                 <div className="mt-5 flex gap-3">
-                  <button
-                    onClick={saveImage}
-                    className="inline-flex items-center gap-2 rounded-full bg-[#FF2442] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e61f3b]"
-                  >
-                    <DownloadIcon />
-                    保存图片
+                  <button onClick={saveImage} className="inline-flex items-center gap-2 rounded-full bg-[#FF2442] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#e61f3b]">
+                    <DownloadIcon /> {t("share.saveImage")}
                   </button>
-                  <button
-                    onClick={copyShareText}
-                    className="inline-flex items-center rounded-full border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:bg-slate-50"
-                  >
-                    {copied ? "已复制" : "复制文案"}
+                  <button onClick={copyShareText} className="inline-flex items-center rounded-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-dark-card px-5 py-2.5 text-sm font-semibold text-slate-800 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-white/10">
+                    {copied ? t("share.copied") : t("share.copyText")}
                   </button>
                 </div>
               </div>
