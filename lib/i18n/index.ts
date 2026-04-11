@@ -106,7 +106,9 @@ export function getDict(locale: Locale): Record<string, string> {
 // ── Structured dictionary (server-side, async) ──
 
 export interface Dictionary {
-  nav: { types: string; rankings: string; about: string; startTest: string };
+  nav: { types: string; rankings: string; about: string; startTest: string; privacy: string; terms: string };
+  privacy: { title: string };
+  terms: { title: string };
   footer: {
     brand: string;
     brandDesc: string;

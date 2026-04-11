@@ -6,7 +6,11 @@ const ja: Dictionary = {
     rankings: "ランキング",
     about: "テストについて",
     startTest: "テスト開始",
+    privacy: "プライバシーポリシー",
+    terms: "利用規約",
   },
+  privacy: { title: "プライバシーポリシー" },
+  terms: { title: "利用規約" },
   footer: {
     brand: "SBTI",
     brandDesc: "ふざけてるようで本気で作った性格診断。15次元 x 27タイプで、あなたが一体何者なのか暴きます。",

@@ -6,7 +6,11 @@ const zhTW: Dictionary = {
     rankings: "排行榜",
     about: "關於測試",
     startTest: "開始測試",
+    privacy: "隱私政策",
+    terms: "使用者協議",
   },
+  privacy: { title: "隱私政策" },
+  terms: { title: "使用者協議" },
   footer: {
     brand: "SBTI",
     brandDesc: "一個不太正經但認真做了的人格測試。15 維度 × 27 種人格，幫你看清自己到底是個什麼東西。",

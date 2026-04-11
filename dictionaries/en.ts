@@ -6,7 +6,11 @@ const en: Dictionary = {
     rankings: "Rankings",
     about: "About",
     startTest: "Start Test",
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
   },
+  privacy: { title: "Privacy Policy" },
+  terms: { title: "Terms of Service" },
 
   footer: {
     brand: "SBTI",

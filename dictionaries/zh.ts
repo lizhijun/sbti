@@ -6,7 +6,11 @@ const zh: Dictionary = {
     rankings: "人格排行榜",
     about: "关于测试",
     startTest: "开始测试",
+    privacy: "隐私政策",
+    terms: "用户协议",
   },
+  privacy: { title: "隐私政策" },
+  terms: { title: "用户协议" },
   footer: {
     brand: "SBTI",
     brandDesc:

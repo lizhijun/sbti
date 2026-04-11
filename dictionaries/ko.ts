@@ -6,7 +6,11 @@ const ko: Dictionary = {
     rankings: "랭킹",
     about: "테스트 소개",
     startTest: "테스트 시작",
+    privacy: "개인정보처리방침",
+    terms: "이용약관",
   },
+  privacy: { title: "개인정보처리방침" },
+  terms: { title: "이용약관" },
   footer: {
     brand: "SBTI",
     brandDesc: "장난 같지만 진지하게 만든 성격 테스트. 15차원 x 27가지 유형으로 당신이 대체 뭔지 파헤칩니다.",

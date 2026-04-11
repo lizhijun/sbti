@@ -159,8 +159,42 @@ export const en: Record<string, string> = {
   // ── Footer ──
   "footer.desc": "This is the SBTI personality test website. If you've been seeing SBTI around and want to know your personality type, just start the test from the homepage.",
   "footer.home": "Home",
+  "footer.privacy": "Privacy Policy",
+  "footer.terms": "Terms of Service",
   "footer.disclaimer": "Disclaimer",
   "footer.disclaimerText": "SBTI is best used for entertainment, comparison, and self-reflection. It's not meant as a serious psychological diagnosis. Think of it as a more fun, everyday personality test.",
+
+  // ── Privacy ──
+  "privacy.title": "Privacy Policy",
+  "privacy.updated": "Last updated: April 11, 2025",
+  "privacy.s1.title": "1. Information We Collect",
+  "privacy.s1.text": "The SBTI personality test website only temporarily processes your quiz responses in the browser to generate personality results. We do not require account registration and do not collect personal identifying information such as names, emails, or phone numbers. If you voluntarily submit your result to the leaderboard, we record only the personality type code and submission time, without linking any identifiable information.",
+  "privacy.s2.title": "2. Cookies & Analytics",
+  "privacy.s2.text": "We may use cookies or similar technologies to remember your language preference and theme settings. We may use anonymous analytics tools (such as Google Analytics or Vercel Analytics) to understand traffic and page performance. This data is not used to track individual users.",
+  "privacy.s3.title": "3. Data Storage & Security",
+  "privacy.s3.text": "Your quiz responses are processed entirely in the browser and are not uploaded to our servers. Leaderboard submission data is stored in a protected database with Row Level Security (RLS) policies. We take reasonable technical measures to protect data security but cannot guarantee absolute security.",
+  "privacy.s4.title": "4. Third-Party Services",
+  "privacy.s4.text": "This website is hosted on Vercel and is subject to its privacy policy. We do not sell, rent, or share your data with any third party for marketing purposes.",
+  "privacy.s5.title": "5. Children's Privacy",
+  "privacy.s5.text": "This website is not intended for children under 13 years of age. We do not knowingly collect personal information from minors. If you believe a minor's information has been improperly collected, please contact us for removal.",
+  "privacy.s6.title": "6. Contact Us",
+  "privacy.s6.text": "If you have any questions about this privacy policy, please contact us at: support@xiachat.com.",
+
+  // ── Terms ──
+  "terms.title": "Terms of Service",
+  "terms.updated": "Last updated: April 11, 2025",
+  "terms.s1.title": "1. Service Description",
+  "terms.s1.text": "The SBTI personality test website (hereinafter 'this website') provides online personality testing, personality type browsing, leaderboards, and related features. Test results are for entertainment and self-reference only and do not constitute any psychological diagnosis or professional advice.",
+  "terms.s2.title": "2. Usage Rules",
+  "terms.s2.text": "You agree to comply with all applicable laws and regulations when using this website. You shall not use this website for any illegal, infringing, or disruptive activities, including but not limited to: malicious leaderboard manipulation, automated bulk submissions, posting inappropriate content, or attacking or interfering with server operations.",
+  "terms.s3.title": "3. Intellectual Property",
+  "terms.s3.text": "All content on this website, including but not limited to text, images, design, code, personality type descriptions, and test questions, is protected by copyright law. No reproduction, redistribution, or commercial use is permitted without written authorization.",
+  "terms.s4.title": "4. Disclaimer",
+  "terms.s4.text": "This website is provided 'as is' without any express or implied warranties regarding the accuracy, completeness, or suitability of test results. We shall not be liable for any direct or indirect losses arising from the use or inability to use this website.",
+  "terms.s5.title": "5. Changes to Terms",
+  "terms.s5.text": "We reserve the right to modify these terms at any time. Updated terms will be posted on this page, and continued use of the website constitutes acceptance of the modified terms.",
+  "terms.s6.title": "6. Contact",
+  "terms.s6.text": "If you have any questions about these terms, please contact us at: support@xiachat.com.",
 
   // ── Level Labels ──
   "level.H": "High",
