@@ -1,5 +1,4 @@
-import { personalityTypes, typeByCode } from "@/lib/types";
-import { getSupabase } from "@/lib/supabase";
+import { typeByCode } from "@/lib/types";
 import { HomeContent } from "../HomeContent";
 import {
   LOCALES,
@@ -67,54 +66,6 @@ export async function generateMetadata({
   };
 }
 
-async function fetchTopRankings(): Promise<{
-  top3: { rank: number; code: string; cn: string; slug: string; count: number; pct: string }[];
-  total: number;
-}> {
-  try {
-    const supabase = getSupabase();
-    const allData: { type_code: string }[] = [];
-    const pageSize = 1000;
-    let from = 0;
-
-    while (true) {
-      const { data, error } = await supabase
-        .from("sbti_rankings")
-        .select("type_code")
-        .range(from, from + pageSize - 1);
-      if (error || !data || data.length === 0) break;
-      allData.push(...data);
-      if (data.length < pageSize) break;
-      from += pageSize;
-    }
-
-    if (allData.length === 0) return { top3: [], total: 0 };
-
-    const counts: Record<string, number> = {};
-    for (const row of allData) {
-      counts[row.type_code] = (counts[row.type_code] ?? 0) + 1;
-    }
-    const sorted = Object.entries(counts)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
-    const total = allData.length;
-    const top3 = sorted.map(([code, count], i) => {
-      const t = typeByCode[code];
-      return {
-        rank: i + 1,
-        code,
-        cn: t?.cn ?? code,
-        slug: t?.slug ?? "",
-        count,
-        pct: ((count / total) * 100).toFixed(1) + "%",
-      };
-    });
-    return { top3, total };
-  } catch {
-    return { top3: [], total: 0 };
-  }
-}
-
 const websiteJsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -153,8 +104,6 @@ const softwareJsonLd = {
   ],
 };
 
-export const revalidate = 60;
-
 export default async function HomePage({
   params,
 }: {
@@ -162,8 +111,6 @@ export default async function HomePage({
 }) {
   const { locale } = await params;
   if (!isValidLocale(locale)) notFound();
-
-  const { top3: topRankings, total: rankingsTotal } = await fetchTopRankings();
 
   const heroCards = [typeByCode["CTRL"], typeByCode["MUM"], typeByCode["OH-NO"]]
     .filter(Boolean)
@@ -179,7 +126,7 @@ export default async function HomePage({
     <main className="flex-1">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
-      <HomeContent heroCards={heroCards} topRankings={topRankings} rankingsTotal={rankingsTotal} />
+      <HomeContent heroCards={heroCards} />
     </main>
   );
 }
