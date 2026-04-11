@@ -106,7 +106,7 @@ export function getDict(locale: Locale): Record<string, string> {
 // ── Structured dictionary (server-side, async) ──
 
 export interface Dictionary {
-  nav: { types: string; rankings: string; about: string; startTest: string; privacy: string; terms: string };
+  nav: { types: string; rankings: string; about: string; startTest: string; privacy: string; terms: string; testCollection: string };
   privacy: { title: string };
   terms: { title: string };
   footer: {
@@ -201,6 +201,7 @@ export interface Dictionary {
   typeNames: Record<string, { name: string; intro: string; desc: string }>;
   dimensionNames: Record<string, { name: string; model: string }>;
   dimensionExplanations: Record<string, { H: string; M: string; L: string }>;
+  tests: { h1: string; desc: string };
 }
 
 const structuredDictionaries: Record<

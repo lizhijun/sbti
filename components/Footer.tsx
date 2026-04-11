@@ -20,6 +20,7 @@ export function Footer() {
             <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/types">{t("nav.types")}</LocaleLink>
             <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/rankings">{t("nav.rankings")}</LocaleLink>
             <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/about">{t("nav.about")}</LocaleLink>
+            <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/tests">{t("nav.testCollection")}</LocaleLink>
             <a className="transition hover:text-slate-950 dark:hover:text-white" href="https://apps.apple.com/us/app/%E5%B0%8F%E9%BE%99%E8%99%BE-%E7%9C%9F%E6%AD%A3%E8%83%BD%E5%B9%B2%E6%B4%BB%E7%9A%84-ai-%E5%8A%A9%E6%89%8B/id6759594177" target="_blank" rel="noopener noreferrer">{t("nav.xiaoLongXia")}</a>
             <a className="transition hover:text-slate-950 dark:hover:text-white" href="https://xiachat.com/clawchat" target="_blank" rel="noopener noreferrer">{t("nav.socialMatching")}</a>
             <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/privacy">{t("footer.privacy")}</LocaleLink>

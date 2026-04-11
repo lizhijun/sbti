@@ -8,6 +8,7 @@ const zhTW: Dictionary = {
     startTest: "開始測試",
     privacy: "隱私政策",
     terms: "使用者協議",
+    testCollection: "測試合集",
   },
   privacy: { title: "隱私政策" },
   terms: { title: "使用者協議" },
@@ -488,6 +489,10 @@ const zhTW: Dictionary = {
       M: "會看氣氛說話，真實和體面通常各留一點。",
       H: "對不同場景的自我切換更熟練，真實感會分層發放。",
     },
+  },
+  tests: {
+    h1: "趣味人格測試合集",
+    desc: "精選多款趣味人格測試，發現你不知道的自己",
   },
 };
 

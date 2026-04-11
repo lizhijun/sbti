@@ -164,6 +164,13 @@ export function ResultContent({ code, cn, intro, desc, slug, image, hasPattern, 
           {t("nav.moreTests")}
         </h2>
         <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <LocaleLink
+            href="/tests"
+            className="flex flex-col items-center rounded-[28px] border border-black/5 dark:border-white/10 bg-white/88 dark:bg-dark-card px-5 py-6 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none transition hover:shadow-[0_18px_48px_rgba(15,23,42,0.10)]"
+          >
+            <span className="text-4xl">🧩</span>
+            <p className="mt-3 text-base font-semibold text-slate-900 dark:text-white">{t("nav.testCollection")}</p>
+          </LocaleLink>
           <a
             href="https://xiachat.com/soul-quiz"
             target="_blank"

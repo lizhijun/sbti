@@ -8,6 +8,7 @@ const zh: Dictionary = {
     startTest: "开始测试",
     privacy: "隐私政策",
     terms: "用户协议",
+    testCollection: "测试合集",
   },
   privacy: { title: "隐私政策" },
   terms: { title: "用户协议" },
@@ -566,6 +567,10 @@ const zh: Dictionary = {
       M: "会看气氛说话，真实和体面通常各留一点。",
       L: "表达更直接，心里有啥基本不爱绕。",
     },
+  },
+  tests: {
+    h1: "趣味人格测试合集",
+    desc: "精选多款趣味人格测试，发现你不知道的自己",
   },
 };
 

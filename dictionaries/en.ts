@@ -8,6 +8,7 @@ const en: Dictionary = {
     startTest: "Start Test",
     privacy: "Privacy Policy",
     terms: "Terms of Service",
+    testCollection: "Test Collection",
   },
   privacy: { title: "Privacy Policy" },
   terms: { title: "Terms of Service" },
@@ -585,6 +586,10 @@ const en: Dictionary = {
       M: "Reads the room before speaking. Keeps a balance between real and polite.",
       H: "Smooth at switching personas for different contexts. Authenticity is released in layers.",
     },
+  },
+  tests: {
+    h1: "Fun Personality Tests",
+    desc: "A curated collection of fun personality tests — discover sides of yourself you never knew",
   },
 };
 

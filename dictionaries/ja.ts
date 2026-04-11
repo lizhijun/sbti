@@ -8,6 +8,7 @@ const ja: Dictionary = {
     startTest: "テスト開始",
     privacy: "プライバシーポリシー",
     terms: "利用規約",
+    testCollection: "テスト集",
   },
   privacy: { title: "プライバシーポリシー" },
   terms: { title: "利用規約" },
@@ -488,6 +489,10 @@ const ja: Dictionary = {
       M: "空気を読んで話す。本音と建前をちょっとずつ。",
       H: "場面に応じた自分の切り替えが上手い。本音はレイヤー分け。",
     },
+  },
+  tests: {
+    h1: "おもしろ性格テスト集",
+    desc: "厳選された楽しい性格テスト、あなたの知らない一面を発見しよう",
   },
 };
 

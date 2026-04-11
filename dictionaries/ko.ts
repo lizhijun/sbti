@@ -8,6 +8,7 @@ const ko: Dictionary = {
     startTest: "테스트 시작",
     privacy: "개인정보처리방침",
     terms: "이용약관",
+    testCollection: "테스트 모음",
   },
   privacy: { title: "개인정보처리방침" },
   terms: { title: "이용약관" },
@@ -488,6 +489,10 @@ const ko: Dictionary = {
       M: "분위기 봐가며 말해. 진심과 체면을 조금씩 섞어.",
       H: "장면에 따라 자기를 전환하는 데 익숙해. 진정성은 레이어별로 공개.",
     },
+  },
+  tests: {
+    h1: "재미있는 성격 테스트 모음",
+    desc: "엄선된 재미있는 성격 테스트로 몰랐던 나를 발견해 보세요",
   },
 };
 

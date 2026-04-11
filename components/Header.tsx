@@ -91,6 +91,7 @@ export function Header() {
           <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/types">{t("nav.types")}</LocaleLink>
           <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/rankings">{t("nav.rankings")}</LocaleLink>
           <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/about">{t("nav.about")}</LocaleLink>
+          <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/tests">{t("nav.testCollection")}</LocaleLink>
           <LocaleLink className="transition hover:text-slate-950 dark:hover:text-white" href="/test">{t("nav.startTest")}</LocaleLink>
           <div className="relative" ref={testsRef}>
             <button
