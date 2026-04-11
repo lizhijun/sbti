@@ -1,9 +1,10 @@
 "use client";
 
 import { LocaleLink } from "@/components/LocaleLink";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import QRCode from "qrcode";
 import { useDictionary } from "@/components/DictionaryProvider";
+import { typeByCode } from "@/lib/types";
 
 const SITE_URL = "https://sbti.xiachat.com";
 
@@ -50,17 +51,37 @@ interface RankingItem {
   slug: string;
 }
 
-interface Props {
-  rankings: RankingItem[];
-  total: number;
-  dateStr: string;
-  timeStr: string;
-}
-
-export function RankingsContent({ rankings, total, dateStr, timeStr }: Props) {
+export function RankingsContent() {
   const { t } = useDictionary();
+  const [rankings, setRankings] = useState<RankingItem[]>([]);
+  const [total, setTotal] = useState<number | null>(null);
   const [generating, setGenerating] = useState(false);
 
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10);
+  const timeStr = now.toTimeString().slice(0, 5);
+
+  useEffect(() => {
+    fetch("/api/rankings")
+      .then((res) => res.json())
+      .then((data: { rankings: { code: string; count: number }[]; total: number }) => {
+        setTotal(data.total);
+        setRankings(
+          data.rankings.map((item) => {
+            const tp = typeByCode[item.code];
+            return {
+              code: item.code,
+              count: item.count,
+              cn: tp?.cn ?? item.code,
+              slug: tp?.slug ?? "",
+            };
+          })
+        );
+      })
+      .catch(() => {});
+  }, []);
+
+  const loading = total === null;
   const top3 = rankings.slice(0, 3);
   const rest = rankings.slice(3);
   const maxCount = rankings[0]?.count ?? 1;
@@ -111,7 +132,7 @@ export function RankingsContent({ rankings, total, dateStr, timeStr }: Props) {
       ctx.fillStyle = "#64748b";
       ctx.font = '400 16px "Noto Sans SC", system-ui, sans-serif';
       ctx.fillText(
-        `${t("rankings.totalSubmissions")} ${total.toLocaleString()}  ·  ${typeCount} ${t("rankings.typesUnit")}${t("rankings.typesOnBoard")}  ·  ${dateStr}`,
+        `${t("rankings.totalSubmissions")} ${(total ?? 0).toLocaleString()}  ·  ${typeCount} ${t("rankings.typesUnit")}${t("rankings.typesOnBoard")}  ·  ${dateStr}`,
         cx, pad + 76
       );
 
@@ -141,7 +162,8 @@ export function RankingsContent({ rankings, total, dateStr, timeStr }: Props) {
       displayItems.forEach((item, i) => {
         const y = headerH + i * rowH;
         const rank = i + 1;
-        const pct = total > 0 ? ((item.count / total) * 100).toFixed(1) : "0.0";
+        const t_ = total ?? 0;
+        const pct = t_ > 0 ? ((item.count / t_) * 100).toFixed(1) : "0.0";
         const barW = (item.count / maxCount) * barMaxW;
 
         // Rank number
@@ -250,7 +272,7 @@ export function RankingsContent({ rankings, total, dateStr, timeStr }: Props) {
       <div className="mt-6">
         <button
           onClick={generateAndDownload}
-          disabled={generating || rankings.length === 0}
+          disabled={generating || loading}
           className="inline-flex items-center gap-2 rounded-full bg-emerald-600 dark:bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 dark:hover:bg-emerald-400 disabled:opacity-50"
         >
           {generating ? (
@@ -274,11 +296,19 @@ export function RankingsContent({ rankings, total, dateStr, timeStr }: Props) {
       {/* Stat cards */}
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <div className="rounded-[28px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-6 py-6 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">{total.toLocaleString()}</p>
+          {loading ? (
+            <div className="h-9 w-28 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+          ) : (
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">{total.toLocaleString()}</p>
+          )}
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t("rankings.totalSubmissions")}</p>
         </div>
         <div className="rounded-[28px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-6 py-6 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
-          <p className="text-3xl font-bold text-slate-900 dark:text-white">{typeCount} {t("rankings.typesUnit")}</p>
+          {loading ? (
+            <div className="h-9 w-20 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+          ) : (
+            <p className="text-3xl font-bold text-slate-900 dark:text-white">{typeCount} {t("rankings.typesUnit")}</p>
+          )}
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t("rankings.typesOnBoard")}</p>
         </div>
         <div className="rounded-[28px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-6 py-6 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
@@ -288,10 +318,21 @@ export function RankingsContent({ rankings, total, dateStr, timeStr }: Props) {
       </div>
 
       {/* Top 3 */}
-      {top3.length > 0 && (
+      {loading ? (
+        <div className="mt-10 grid gap-5 sm:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex flex-col items-center rounded-[30px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-6 py-8 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
+              <div className="h-14 w-14 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="mt-4 h-7 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+              <div className="mt-2 h-5 w-16 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+              <div className="mt-3 h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+            </div>
+          ))}
+        </div>
+      ) : top3.length > 0 ? (
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
           {top3.map((item, i) => {
-            const pct = total > 0 ? ((item.count / total) * 100).toFixed(1) : "0.0";
+            const pct = total! > 0 ? ((item.count / total!) * 100).toFixed(1) : "0.0";
             return (
               <LocaleLink
                 key={item.code}
@@ -312,17 +353,34 @@ export function RankingsContent({ rankings, total, dateStr, timeStr }: Props) {
             );
           })}
         </div>
-      )}
+      ) : null}
 
       {/* Full ranking list */}
-      {rest.length > 0 && (
+      {loading ? (
+        <div className="mt-10 rounded-[30px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-6 py-6 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t("rankings.fullRanking")}</h2>
+          <div className="mt-5 flex flex-col gap-3">
+            {Array.from({ length: 8 }, (_, i) => (
+              <div key={i} className="flex items-center gap-4 rounded-2xl px-3 py-2.5">
+                <div className="h-5 w-8 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                <div className="h-5 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700 sm:w-32" />
+                <div className="h-5 w-14 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+                <div className="flex flex-1 items-center gap-3">
+                  <div className="h-2 flex-1 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+                  <div className="h-4 w-20 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : rest.length > 0 ? (
         <div className="mt-10 rounded-[30px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-6 py-6 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t("rankings.fullRanking")}</h2>
 
           <div className="mt-5 flex flex-col gap-3">
             {rest.map((item, i) => {
               const rank = i + 4;
-              const pct = total > 0 ? ((item.count / total) * 100).toFixed(1) : "0.0";
+              const pct = total! > 0 ? ((item.count / total!) * 100).toFixed(1) : "0.0";
               const barWidth = (item.count / maxCount) * 100;
               return (
                 <LocaleLink
@@ -348,10 +406,10 @@ export function RankingsContent({ rankings, total, dateStr, timeStr }: Props) {
             })}
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* Empty state */}
-      {rankings.length === 0 && (
+      {!loading && rankings.length === 0 && (
         <div className="mt-10 rounded-[30px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-6 py-12 text-center shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
           <p className="text-lg font-semibold text-slate-900 dark:text-white">{t("rankings.noData")}</p>
           <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">{t("rankings.noDataDesc")}</p>
