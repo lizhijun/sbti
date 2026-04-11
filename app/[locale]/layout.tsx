@@ -6,6 +6,7 @@ import {
   type Locale,
 } from "@/lib/i18n";
 import { Header } from "@/components/Header";
+import { AppDownloadBanner } from "@/components/AppDownloadBanner";
 import { Footer } from "@/components/Footer";
 import { DictionaryProvider } from "@/components/DictionaryProvider";
 
@@ -28,6 +29,7 @@ export default async function LocaleLayout({
   return (
     <DictionaryProvider locale={locale as Locale} messages={messages}>
       <Header />
+      <AppDownloadBanner />
       {children}
       <Footer />
     </DictionaryProvider>

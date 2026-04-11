@@ -75,14 +75,14 @@ function OnlineCount({ text }: { text: string }) {
   useEffect(() => {
     // Seed from time of day to vary across sessions
     const hour = new Date().getHours();
-    const base = hour >= 8 && hour <= 23 ? 30 + Math.floor(hour * 1.5) : 15 + Math.floor(Math.random() * 10);
-    setCount(base + Math.floor(Math.random() * 15));
+    const base = hour >= 8 && hour <= 23 ? 1800 + Math.floor(hour * 30) : 1500 + Math.floor(Math.random() * 200);
+    setCount(base + Math.floor(Math.random() * 300));
 
     const interval = setInterval(() => {
       setCount((prev) => {
-        const delta = Math.random() > 0.5 ? 1 : -1;
+        const delta = (Math.random() > 0.5 ? 1 : -1) * Math.floor(1 + Math.random() * 5);
         const next = prev + delta;
-        return Math.max(10, Math.min(next, 99));
+        return Math.max(1500, Math.min(next, 2500));
       });
     }, 3000 + Math.random() * 2000);
 
