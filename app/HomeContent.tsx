@@ -4,6 +4,7 @@ import Image from "next/image";
 import { LocaleLink } from "@/components/LocaleLink";
 import { useState, useEffect, useRef } from "react";
 import { useDictionary } from "@/components/DictionaryProvider";
+import { typeByCode } from "@/lib/types";
 
 interface HeroCard {
   code: string;
@@ -24,8 +25,6 @@ interface RankingItem {
 
 interface Props {
   heroCards: HeroCard[];
-  topRankings: RankingItem[];
-  rankingsTotal: number;
 }
 
 const modelKeys = [
@@ -112,8 +111,33 @@ function OnlineCount({ text }: { text: string }) {
   );
 }
 
-export function HomeContent({ heroCards, topRankings, rankingsTotal }: Props) {
+export function HomeContent({ heroCards }: Props) {
   const { t } = useDictionary();
+  const [topRankings, setTopRankings] = useState<RankingItem[]>([]);
+  const [rankingsTotal, setRankingsTotal] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch("/api/rankings")
+      .then((res) => res.json())
+      .then((data: { rankings: { code: string; count: number }[]; total: number }) => {
+        const top3 = data.rankings.slice(0, 3);
+        setRankingsTotal(data.total);
+        setTopRankings(
+          top3.map((item, i) => {
+            const tp = typeByCode[item.code];
+            return {
+              rank: i + 1,
+              code: item.code,
+              cn: tp?.cn ?? item.code,
+              slug: tp?.slug ?? "",
+              count: item.count,
+              pct: ((item.count / data.total) * 100).toFixed(1) + "%",
+            };
+          })
+        );
+      })
+      .catch(() => {});
+  }, []);
 
   const stats = [
     { label: t("home.stat1Label"), sub: t("home.stat1Sub") },
@@ -247,7 +271,11 @@ export function HomeContent({ heroCards, topRankings, rankingsTotal }: Props) {
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_1.2fr]">
           <div className="flex flex-col justify-between rounded-[32px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-6 py-8 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
             <div>
-              <p className="text-6xl font-bold tracking-tight text-slate-900 dark:text-white">{rankingsTotal.toLocaleString()}</p>
+              {rankingsTotal === null ? (
+                <div className="h-16 w-40 animate-pulse rounded-2xl bg-slate-200 dark:bg-slate-700" />
+              ) : (
+                <p className="text-6xl font-bold tracking-tight text-slate-900 dark:text-white">{rankingsTotal.toLocaleString()}</p>
+              )}
               <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">
                 {t("home.rankingsDesc")}
               </p>
@@ -258,22 +286,34 @@ export function HomeContent({ heroCards, topRankings, rankingsTotal }: Props) {
           </div>
 
           <div className="flex flex-col gap-4">
-            {topRankings.map((r) => (
-              <LocaleLink key={r.slug} href={`/result/${r.slug}`} className="flex items-center gap-5 rounded-[28px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-5 py-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none transition hover:shadow-[0_18px_48px_rgba(15,23,42,0.10)]">
-                <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-sm font-bold text-emerald-800 dark:text-emerald-300">
-                  #{r.rank}
-                </span>
-                <div className="flex flex-col gap-0.5">
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                    {r.cn}{" "}
-                    <span className="text-sm font-medium text-slate-400">{r.code}</span>
-                  </p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {r.count} {t("home.timesUnit")} / {r.pct}
-                  </p>
+            {topRankings.length === 0 ? (
+              [1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center gap-5 rounded-[28px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-5 py-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none">
+                  <div className="h-10 w-10 flex-shrink-0 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+                  <div className="flex flex-col gap-2">
+                    <div className="h-5 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                    <div className="h-4 w-24 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
+                  </div>
                 </div>
-              </LocaleLink>
-            ))}
+              ))
+            ) : (
+              topRankings.map((r) => (
+                <LocaleLink key={r.slug} href={`/result/${r.slug}`} className="flex items-center gap-5 rounded-[28px] border border-black/5 dark:border-white/10 bg-white/85 dark:bg-dark-card px-5 py-5 shadow-[0_18px_48px_rgba(15,23,42,0.06)] dark:shadow-none transition hover:shadow-[0_18px_48px_rgba(15,23,42,0.10)]">
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-sm font-bold text-emerald-800 dark:text-emerald-300">
+                    #{r.rank}
+                  </span>
+                  <div className="flex flex-col gap-0.5">
+                    <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      {r.cn}{" "}
+                      <span className="text-sm font-medium text-slate-400">{r.code}</span>
+                    </p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      {r.count} {t("home.timesUnit")} / {r.pct}
+                    </p>
+                  </div>
+                </LocaleLink>
+              ))
+            )}
           </div>
         </div>
       </section>
