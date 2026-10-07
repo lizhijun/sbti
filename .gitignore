@@ -7,3 +7,6 @@ next-env.d.ts
 .env.local
 .env.production.local
 .DS_Store
+.open-next/
+.wrangler/
+.dev.vars*

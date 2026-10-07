@@ -1,35 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { submitRanking, type RankingSubmission } from "@/lib/db";
+import { typeByCode } from "@/lib/types";
+import { isIdentifier, isRecord } from "@/lib/submission-validation";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { typeCode, submissionId, rawScores, levels, similarity } = body;
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  if (!isRecord(body)) {
+    return NextResponse.json({ error: "Invalid submission" }, { status: 400 });
+  }
+  const { typeCode, submissionId } = body;
+  const rawScores = body.rawScores ?? {};
+  const levels = body.levels ?? {};
+  const similarity = body.similarity ?? 0;
 
-  if (!typeCode || !submissionId) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 },
-    );
+  if (
+    !isIdentifier(typeCode) || !Object.hasOwn(typeByCode, typeCode) ||
+    !isIdentifier(submissionId) ||
+    !isRecord(rawScores) || !Object.values(rawScores).every(Number.isFinite) ||
+    !isRecord(levels) || !Object.values(levels).every((level) => typeof level === "string" && ["L", "M", "H"].includes(level)) ||
+    typeof similarity !== "number" || !Number.isInteger(similarity) || similarity < 0 || similarity > 100
+  ) {
+    return NextResponse.json({ error: "Invalid submission" }, { status: 400 });
   }
 
-  const supabase = getSupabase();
-  const { error } = await supabase.from("sbti_rankings").insert({
-    type_code: typeCode,
-    submission_id: submissionId,
-    raw_scores: rawScores,
-    levels: levels,
-    similarity: similarity,
-  });
-
-  if (error) {
-    if (error.code === "23505") {
-      return NextResponse.json(
-        { error: "Already submitted" },
-        { status: 409 },
-      );
-    }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const inserted = await submitRanking({
+      typeCode, submissionId, rawScores, levels, similarity,
+    } as RankingSubmission);
+    return inserted
+      ? NextResponse.json({ ok: true })
+      : NextResponse.json({ error: "Already submitted" }, { status: 409 });
+  } catch {
+    console.error("Failed to save SBTI ranking to Neon");
+    return NextResponse.json({ error: "Submission unavailable" }, { status: 503 });
   }
-
-  return NextResponse.json({ ok: true });
 }

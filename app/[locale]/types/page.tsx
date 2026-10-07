@@ -2,7 +2,7 @@ import { personalityTypes } from "@/lib/types";
 import type { RankingEntry } from "@/lib/types";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSupabase } from "@/lib/supabase";
+import { fetchRankings as fetchDatabaseRankings } from "@/lib/db";
 import { TypesContent } from "../../types/TypesContent";
 import {
   LOCALES,
@@ -15,7 +15,7 @@ import {
   isValidLocale,
 } from "@/lib/i18n";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -48,17 +48,7 @@ export async function generateMetadata({
 
 async function fetchRankings(): Promise<{ rankings: RankingEntry[]; total: number }> {
   try {
-    const supabase = getSupabase();
-    const { data, error } = await supabase.from("sbti_rankings").select("type_code");
-    if (error || !data) return { rankings: [], total: 0 };
-    const counts: Record<string, number> = {};
-    for (const row of data) {
-      counts[row.type_code] = (counts[row.type_code] ?? 0) + 1;
-    }
-    const rankings = Object.entries(counts)
-      .map(([code, count]) => ({ code, count }))
-      .sort((a, b) => b.count - a.count);
-    return { rankings, total: data.length };
+    return await fetchDatabaseRankings();
   } catch {
     return { rankings: [], total: 0 };
   }

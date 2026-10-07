@@ -1,33 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSupabase } from "@/lib/supabase";
+import { submitMiniTest } from "@/lib/db";
+import { miniTests } from "@/lib/mini-tests";
+import { isIdentifier, isRecord } from "@/lib/submission-validation";
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  if (!isRecord(body)) {
+    return NextResponse.json({ error: "Invalid submission" }, { status: 400 });
+  }
   const { testId, resultId, sessionId } = body;
-
-  if (!testId || !resultId || !sessionId) {
-    return NextResponse.json(
-      { error: "Missing required fields" },
-      { status: 400 },
-    );
+  const test = miniTests.find((test) => test.id === testId);
+  if (
+    !test || !isIdentifier(testId) || !isIdentifier(sessionId) ||
+    !isIdentifier(resultId) || !/^r\d+$/.test(resultId) ||
+    Number(resultId.slice(1)) >= test.resultCount
+  ) {
+    return NextResponse.json({ error: "Invalid submission" }, { status: 400 });
   }
 
-  const supabase = getSupabase();
-  const { error } = await supabase.from("mini_test_activity").insert({
-    test_id: testId,
-    result_id: resultId,
-    session_id: sessionId,
-  });
-
-  if (error) {
-    if (error.code === "23505") {
-      return NextResponse.json(
-        { error: "Already submitted" },
-        { status: 409 },
-      );
-    }
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  try {
+    const inserted = await submitMiniTest({ testId, resultId, sessionId });
+    return inserted
+      ? NextResponse.json({ ok: true })
+      : NextResponse.json({ error: "Already submitted" }, { status: 409 });
+  } catch {
+    console.error("Failed to save mini-test activity to Neon");
+    return NextResponse.json({ error: "Submission unavailable" }, { status: 503 });
   }
-
-  return NextResponse.json({ ok: true });
 }

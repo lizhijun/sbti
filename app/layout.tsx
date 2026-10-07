@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import { Analytics } from "@vercel/analytics/next";
 import { localeToHtmlLang, type Locale, SITE_URL } from "@/lib/i18n";
 
 const SITE_NAME = "SBTI 人格测试";
@@ -84,7 +83,6 @@ export default async function RootLayout({
         <Providers>
           {children}
         </Providers>
-        <Analytics />
       </body>
     </html>
   );

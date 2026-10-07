@@ -1,4 +1,4 @@
-import { getSupabase } from "./supabase";
+import { fetchMiniTestStats } from "./db";
 import { miniTests } from "./mini-tests";
 
 export interface TestStats {
@@ -19,39 +19,16 @@ export function hotScore(totalTakes: number, lastTestedAt: string | null): numbe
 }
 
 export async function fetchTestStats(): Promise<TestStats[]> {
-  const supabase = getSupabase();
-  const allData: { test_id: string; created_at: string }[] = [];
-  const pageSize = 1000;
-  let from = 0;
-
-  while (true) {
-    const { data, error } = await supabase
-      .from("mini_test_activity")
-      .select("test_id, created_at")
-      .range(from, from + pageSize - 1);
-    if (error || !data || data.length === 0) break;
-    allData.push(...data);
-    if (data.length < pageSize) break;
-    from += pageSize;
-  }
-
-  const statsMap: Record<string, { total: number; latest: string }> = {};
-  for (const row of allData) {
-    const existing = statsMap[row.test_id];
-    if (!existing) {
-      statsMap[row.test_id] = { total: 1, latest: row.created_at };
-    } else {
-      existing.total += 1;
-      if (row.created_at > existing.latest) existing.latest = row.created_at;
-    }
-  }
+  const statsMap = new Map(
+    (await fetchMiniTestStats()).map((stats) => [stats.testId, stats]),
+  );
 
   return miniTests.map((t) => {
-    const s = statsMap[t.id];
+    const s = statsMap.get(t.id);
     return {
       testId: t.id,
-      totalTakes: s?.total ?? 0,
-      lastTestedAt: s?.latest ?? null,
+      totalTakes: s?.totalTakes ?? 0,
+      lastTestedAt: s?.lastTestedAt ?? null,
     };
   });
 }

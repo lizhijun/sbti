@@ -7,7 +7,7 @@ SBTI（Silly Behavioral Type Indicator）是一个轻松向的在线人格测试
 - 32 道测试题 + 隐藏饮酒分支
 - 27 种人格类型，含详细描述和专属插画
 - 15 维度评分系统（5 组人格切面 x 3 维度）
-- 人格排行榜（Supabase 存储）
+- 人格排行榜（Neon Postgres 存储）
 - 选中选项自动进入下一题
 
 ## 技术栈
@@ -15,7 +15,7 @@ SBTI（Silly Behavioral Type Indicator）是一个轻松向的在线人格测试
 - **Next.js 15** — App Router + React Server Components
 - **Tailwind CSS v4** — 样式
 - **TypeScript** — 类型安全
-- **Supabase** — 排行榜数据存储
+- **Neon Postgres** — 排行榜与测试记录存储
 
 ## 快速开始
 
@@ -34,12 +34,35 @@ pnpm build
 
 ## 环境变量
 
-排行榜功能需要配置 Supabase：
+服务端数据库连接通过 `DATABASE_URL` 配置，连接字符串来自 Neon Console：
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+DATABASE_URL=postgresql://user:password@your-neon-host/sbti?sslmode=require
 ```
+
+## Cloudflare 部署
+
+生产域名：<https://sbti.xiachat.com>。Neon 项目：[sbti](https://console.neon.tech/app/projects/summer-flower-20519739)，数据库 `sbti`，生产分支 `production`，地域新加坡。项目通过 OpenNext 部署为 Cloudflare Worker `sbti`，保留 Next.js 服务端接口和多语言路由。
+
+```bash
+pnpm install --frozen-lockfile
+pnpm exec wrangler login
+cp .env.example .env.local
+# 在 .env.local 中填写 Neon DATABASE_URL
+pnpm db:migrate
+pnpm preview
+pnpm deploy
+```
+
+数据库连接仅在服务端使用，部署时将其配置为 Cloudflare Secret：
+
+```bash
+pnpm exec wrangler secret put DATABASE_URL
+```
+
+`pnpm db:migrate` 执行 `db/migrations/001_create_rankings.sql`，可重复运行。初始化新的 Neon 项目不会自动导入原 Supabase 历史数据。
+
+`wrangler.jsonc` 管理 Worker、静态资源及域名路由。`public/_headers` 为 Next.js 静态资源设置长期缓存。Worker 日志通过 Cloudflare Observability 收集。
 
 ## 项目结构
 
@@ -62,7 +85,8 @@ sbti/
 │   ├── types.ts            # 27 种人格类型数据
 │   ├── dimensions.ts       # 15 维度定义 + H/M/L 解释
 │   ├── scoring.ts          # 评分匹配算法
-│   └── supabase.ts         # Supabase 客户端
+│   └── db.ts               # Neon 服务端查询
+├── db/migrations/          # Neon Postgres 建表迁移
 └── public/images/types/    # 27 个人格插画
 ```
 

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-SBTI (Silly Behavioral Type Indicator) — a multilingual personality test site. 32 questions, 27 personality types, 15 dimensions across 5 facet groups. Built with Next.js 15 App Router, Tailwind CSS v4, TypeScript, Supabase (rankings), deployed on Vercel.
+SBTI (Silly Behavioral Type Indicator) — a multilingual personality test site. 32 questions, 27 personality types, 15 dimensions across 5 facet groups. Built with Next.js 15 App Router, Tailwind CSS v4, TypeScript, Neon Postgres (rankings). Deployed as the Cloudflare `sbti` Worker using OpenNext at https://sbti.xiachat.com; database requests require the server-only `DATABASE_URL` described below.
 
 ## Commands
 
@@ -12,6 +12,8 @@ SBTI (Silly Behavioral Type Indicator) — a multilingual personality test site.
 pnpm install          # install dependencies
 pnpm dev              # dev server at localhost:3000
 pnpm build            # production build (also type-checks)
+pnpm preview          # build and preview in the Cloudflare Workers runtime
+pnpm deploy           # build and deploy the sbti Worker
 pnpm lint             # next lint
 ```
 
@@ -47,12 +49,14 @@ Two separate translation layers coexist:
 - `lib/types.ts` — 27 personality types with codes (4-letter, e.g., "CTRL", "CHAO") and patterns
 - `lib/dimensions.ts` — 15 dimension codes with H/M/L explanations
 
-### Supabase
+### Neon Postgres
 
-- Table `sbti_rankings` with RLS (anonymous insert, public read)
+- Tables `sbti_rankings` and `mini_test_activity`; database access goes through server-only `lib/db.ts` using the Neon HTTP driver
+- Schema: `db/migrations/001_create_rankings.sql` (`pnpm db:migrate`)
 - API routes: `GET /api/rankings`, `POST /api/rankings/submit`
 - Results cached client-side in localStorage key `sbti:result-snapshot:v1`
-- Env vars: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- Env var: `DATABASE_URL`; store it in `.env.local` locally and as a Cloudflare Worker Secret in production
+- Aggregate rankings in SQL; duplicate submissions return HTTP 409
 
 ### Theme
 

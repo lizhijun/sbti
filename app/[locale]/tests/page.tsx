@@ -14,7 +14,7 @@ import {
   isValidLocale,
 } from "@/lib/i18n";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export function generateStaticParams() {
   return LOCALES.map((locale) => ({ locale }));
@@ -57,7 +57,7 @@ export default async function TestsPage({
   try {
     ranked = await fetchRankedTests();
   } catch {
-    // Fallback: use default priority if Supabase is unavailable
+    // Fallback: use default priority if the database is unavailable
     ranked = miniTests.map((t) => ({
       testId: t.id,
       totalTakes: 0,
