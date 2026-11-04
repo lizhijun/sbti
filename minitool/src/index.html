@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>SBTI 人格测试</title>
+  <link rel="stylesheet" href="./assets/style.css" />
+</head>
+<body>
+  <!-- 首页 -->
+  <section id="view-home" class="view">
+    <div class="page home">
+      <div class="home-head">
+        <span class="chip chip-ink">SBTI · 抽象人格档案馆</span>
+        <h1 class="home-title">测测你是哪种<br /><span class="hl">抽象人类</span></h1>
+        <p class="home-lead">Silly Behavioral Type Indicator<br />一份不太正经、但准得离谱的人格测试</p>
+        <div class="stats">
+          <div class="stat"><b id="stat-q">30</b><span>道题</span></div>
+          <div class="stat"><b id="stat-d">15</b><span>个维度</span></div>
+          <div class="stat"><b id="stat-t">27</b><span>种人格</span></div>
+        </div>
+      </div>
+      <div class="marquee" aria-hidden="true">
+        <div class="marquee-track" id="marquee-a"></div>
+        <div class="marquee-track reverse" id="marquee-b"></div>
+      </div>
+      <div class="steps">
+        <div class="step"><b>1</b><span>凭第一反应作答<br />约 3 分钟</span></div>
+        <div class="step"><b>2</b><span>15 维度扫描<br />匹配人格库</span></div>
+        <div class="step"><b>3</b><span>生成人格海报<br />一键发笔记</span></div>
+      </div>
+      <p class="disclaimer">纯属娱乐，不构成任何心理学诊断</p>
+    </div>
+    <div class="dock">
+      <button type="button" class="btn btn-primary btn-block press" id="btn-start">开始测试<span class="arrow">→</span></button>
+      <button type="button" class="last-entry press hidden" id="btn-last">
+        <img id="last-img" alt="" />
+        <span class="last-text"><small>上次测出</small><b id="last-name"></b></span>
+        <span class="last-go">查看 ›</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- 答题 -->
+  <section id="view-quiz" class="view hidden">
+    <div class="page quiz">
+      <div class="quiz-bar">
+        <button type="button" class="icon-btn press" id="btn-quit" aria-label="退出">✕</button>
+        <div class="quiz-count"><b id="q-num">01</b><span id="q-total">/33</span></div>
+        <span class="chip" id="q-chip"></span>
+      </div>
+      <div class="segbar" id="segbar"></div>
+      <div class="q-card" id="q-card">
+        <p class="q-dim" id="q-dim"></p>
+        <h2 class="q-text" id="q-text"></h2>
+      </div>
+      <div class="options" id="options"></div>
+    </div>
+    <div class="dock dock-quiz">
+      <button type="button" class="btn btn-ghost press" id="btn-prev">‹ 上一题</button>
+      <button type="button" class="btn btn-primary press" id="btn-next">下一题 ›</button>
+    </div>
+  </section>
+
+  <!-- 计算中 -->
+  <section id="view-computing" class="view hidden">
+    <div class="page computing">
+      <div class="scan-box">
+        <div class="scan-ring"><span id="scan-pct">0%</span></div>
+        <p class="scan-title">正在解析你的脑回路</p>
+        <p class="scan-line" id="scan-line">读取自我模型……</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 结果 -->
+  <section id="view-result" class="view hidden">
+    <div class="page result">
+      <div class="poster" id="poster">
+        <div class="poster-top">
+          <span class="chip chip-ink" id="r-kicker"></span>
+          <span class="poster-brand">SBTI</span>
+        </div>
+        <div class="poster-frame"><img id="r-image" alt="" /></div>
+        <h2 class="r-code" id="r-code"></h2>
+        <p class="r-cn" id="r-cn"></p>
+        <p class="r-intro" id="r-intro"></p>
+        <div class="match">
+          <div class="ring" id="r-ring"><b id="r-sim"></b><small>匹配度</small></div>
+          <div class="match-text">
+            <p class="match-badge" id="r-badge"></p>
+            <p class="match-sub" id="r-sub"></p>
+          </div>
+        </div>
+        <p class="r-secondary hidden" id="r-secondary"></p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>人格解读</h3></div>
+        <div class="desc-wrap collapsed" id="desc-wrap">
+          <p class="r-desc" id="r-desc"></p>
+        </div>
+        <button type="button" class="more press" id="btn-more">展开全文 ⌄</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>十五维度画像</h3><span class="legend"><i class="lg lg-L"></i>低<i class="lg lg-M"></i>中<i class="lg lg-H"></i>高</span></div>
+        <div id="r-dims"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>最像你的三种人格</h3></div>
+        <div id="r-top"></div>
+      </div>
+
+      <p class="disclaimer">纯属娱乐，不构成任何心理学诊断</p>
+    </div>
+    <div class="dock dock-result">
+      <button type="button" class="btn btn-primary press" id="btn-post">发笔记晒结果</button>
+      <button type="button" class="btn btn-ghost btn-sq press" id="btn-save">存图</button>
+      <button type="button" class="btn btn-ghost btn-sq press" id="btn-retry">重测</button>
+    </div>
+  </section>
+
+  <div class="toast hidden" id="toast"></div>
+
+  <script src="./assets/data.js"></script>
+  <script src="./assets/app.js"></script>
+</body>
+</html>
